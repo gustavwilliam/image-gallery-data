@@ -15,7 +15,10 @@ def extend_config(config: "CONFIG_TYPE", category: str, image_paths: list[str | 
     if config.get("thumbnail"):
         config["thumbnail"] = f"{category}{config['thumbnail']}"
     else:
-        config["thumbnail"] = image_paths[0]  # Default to first image
+        try:
+            config["thumbnail"] = image_paths[0]  # Default to first image
+        except IndexError:
+            config["thumbnail"] = None  # No images exist in category
 
     for key, val in config["dates"].items():
         config["dates"][key] = str(val)  # Convert datetime object to "YYYY-MM-DD" format
