@@ -26,7 +26,7 @@ image_paths = {
 }
 gallery_data = {
     strip_name(name, PREFIX, DELIMITER):
-    extend_config(config, image_paths[name])
+    extend_config(config, name, image_paths[name])
     for name, config in configs.items()
 }
 

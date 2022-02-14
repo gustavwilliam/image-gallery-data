@@ -9,10 +9,12 @@ def strip_name(category_path: str, prefix: str, delimiter: str) -> str:
     return category_path.removeprefix(prefix).strip(delimiter)
 
 
-def extend_config(config: "CONFIG_TYPE", image_paths: list[str | None]) -> "CONFIG_TYPE":
+def extend_config(config: "CONFIG_TYPE", category: str, image_paths: list[str | None]) -> "CONFIG_TYPE":
     """Adds image urls and sets thumbnail to first image if none is defined."""
     config.update({"images": image_paths})
-    if not config.get("thumbnail"):
+    if config.get("thumbnail"):
+        config["thumbnail"] = f"{category}{config['thumbnail']}"
+    else:
         config["thumbnail"] = image_paths[0]  # Default to first image
 
     for key, val in config["dates"].items():
