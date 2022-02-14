@@ -1,0 +1,29 @@
+name: Build & Push to S3
+on: workflow_dispatch
+
+jobs:
+  build-push:
+    name: Build & Push to S3
+    runs-on: ubuntu-latest
+
+    env:
+      BUCKET_NAME: cdn.godi.se
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.10
+      id: python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"
+        cache: pip
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Build and push
+      run: python -m data-generator
