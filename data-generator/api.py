@@ -1,13 +1,14 @@
 from pathlib import Path
 import yaml
+from .config_generator import strip_name
 
-CONFIG_TYPE = dict[str, str | dict[str, str]]
+CONFIG_TYPE = dict[str, str | dict[str, str] | list[str]]
 
 
-def get_config(client, bucket_name: str, category_path: str) -> CONFIG_TYPE:
+def get_config(client, bucket_name: str, prefix: str, delimiter: str, category_path: str) -> CONFIG_TYPE:
     """Gets the config of a category and returns the corresponding dictionary."""
     Path.mkdir(Path("/tmp/image-gallery-data"), exist_ok=True)
-    category_name = category_path.split("/")[-2]  # Remove prefix
+    category_name = strip_name(category_path, prefix, delimiter)
     filename = f"/tmp/image-gallery-data/meta_{category_name}.yaml"
 
     client.download_file(bucket_name, f"{category_path}meta.yaml", filename)
