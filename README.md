@@ -1,5 +1,7 @@
 # Image Gallery Data
 
+[![Build & Push to S3](https://github.com/gustavwilliam/image-gallery-data/actions/workflows/build-push.yaml/badge.svg)](https://github.com/gustavwilliam/image-gallery-data/actions/workflows/build-push.yaml)
+
 The data for my [Image Gallery](https://github.com/gustavwilliam/image-gallery) project.
 
 This repo contains scripts for automatically building a `data.json` file with all the information required by the Image Gallery.
