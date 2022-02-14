@@ -4,12 +4,13 @@ import yaml
 CONFIG_TYPE = dict[str, str | dict[str, str]]
 
 
-def get_config(client, bucket_name: str, prefix: str, category_name: str) -> CONFIG_TYPE:
+def get_config(client, bucket_name: str, category_path: str) -> CONFIG_TYPE:
     """Gets the config of a category and returns the corresponding dictionary."""
     Path.mkdir(Path("/tmp/image-gallery-data"), exist_ok=True)
+    category_name = category_path.split("/")[-2]  # Remove prefix
     filename = f"/tmp/image-gallery-data/meta_{category_name}.yaml"
 
-    client.download_file(bucket_name, f"{prefix}{category_name}/meta.yaml", filename)
+    client.download_file(bucket_name, f"{category_path}meta.yaml", filename)
     with open(filename) as f:
         return yaml.load(f, yaml.Loader)
 
@@ -22,7 +23,26 @@ def get_categories(client, bucket_name: str, prefix: str, delimiter: str) -> lis
         Delimiter=delimiter,
     )
     try:
-        categories = [obj["Prefix"] for obj in objects["CommonPrefixes"]]
-        return [category.removeprefix(prefix).strip("/") for category in categories]
+        return [obj["Prefix"] for obj in objects["CommonPrefixes"]]
     except KeyError:
         raise RuntimeError("No categories could be found. Please ensure that the `prefix` ends with the delimiter.")
+
+
+def get_image_paths(client, bucket_name: str, delimiter: str, category: str) -> list[str | None]:
+    """Get a list of paths to images in the S3 category."""
+    objects = client.list_objects_v2(
+        Bucket=bucket_name,
+        Prefix=category,
+        Delimiter=delimiter,
+    )
+    try:
+        return [
+            obj["Key"]
+            for obj in objects["Contents"]  # Return [] if no images are present
+            if obj["Key"] != f"{category}meta.yaml"  # Meta files aren't images
+        ]
+    except KeyError:
+        raise RuntimeError(
+            f"The category `{category}` either does not exists or is improperly configured. "
+            "Please ensure that the `category` ends with the delimiter."
+        )
