@@ -1,5 +1,5 @@
+import json
 import os
-import pprint
 
 import boto3
 from dotenv import load_dotenv
@@ -16,18 +16,18 @@ except KeyError:
 
 S3_CLIENT = boto3.client("s3")
 
+categories = get_categories(S3_CLIENT, BUCKET_NAME, PREFIX, DELIMITER)
+configs = {category: get_config(S3_CLIENT, BUCKET_NAME, PREFIX, DELIMITER, category) for category in categories}
+image_paths = {
+    category: get_image_paths(S3_CLIENT, BUCKET_NAME, DELIMITER, category)
+    for category in configs.keys()
+}
+gallery_data = {
+    strip_name(name, PREFIX, DELIMITER):
+    extend_config(config, image_paths[name])
+    for name, config in configs.items()
+}
 
 if __name__ == "__main__":
-    categories = get_categories(S3_CLIENT, BUCKET_NAME, PREFIX, DELIMITER)
-    configs = {category: get_config(S3_CLIENT, BUCKET_NAME, PREFIX, DELIMITER, category) for category in categories}
-    image_paths = {
-        category: get_image_paths(S3_CLIENT, BUCKET_NAME, DELIMITER, category)
-        for category in configs.keys()
-    }
-    gallery_data = {
-        strip_name(name, PREFIX, DELIMITER):
-        extend_config(config, image_paths[name])
-        for name, config in configs.items()
-    }
-
-    pprint.pprint(gallery_data)
+    with open("data.json", "w") as f:
+        json.dump(gallery_data, f)

@@ -15,4 +15,7 @@ def extend_config(config: "CONFIG_TYPE", image_paths: list[str | None]) -> "CONF
     if not config.get("thumbnail"):
         config["thumbnail"] = image_paths[0]  # Default to first image
 
+    for key, val in config["dates"].items():
+        config["dates"][key] = str(val)  # Convert datetime object to "YYYY-MM-DD" format
+
     return config
